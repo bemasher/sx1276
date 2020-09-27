@@ -166,7 +166,7 @@ func (sx *SX1276) StartRX(ctx context.Context) (pkts chan []byte) {
 		LORA_DIOMAPPING1_DIO0_00,
 	)
 
-	err := sx.dio0.In(gpio.Float, gpio.RisingEdge)
+	err := sx.dio0.In(gpio.PullDown, gpio.RisingEdge)
 	if err != nil {
 		log.Fatalf("%+v\n", xerrors.Errorf("sx.dio0.In: %w", err))
 	}
