@@ -22,8 +22,9 @@ const (
 )
 
 type SX1276 struct {
-	port spi.PortCloser
-	spi  spi.Conn
+	portName PortName
+	port     spi.PortCloser
+	spi      spi.Conn
 
 	reset gpio.PinIO
 	dio0  gpio.PinIO
@@ -33,6 +34,8 @@ type SX1276 struct {
 	dio4  gpio.PinIO
 	dio5  gpio.PinIO
 }
+
+type optionFunc func(*SX1276)
 
 type PinName int
 
@@ -46,45 +49,62 @@ const (
 	PinDIO5
 )
 
-//
-
-func (sx *SX1276) WithPin(name PinName, pin gpio.PinIO) *SX1276 {
-	switch name {
-	case PinReset:
-		sx.reset = pin
-	case PinDIO0:
-		sx.dio0 = pin
-	case PinDIO1:
-		sx.dio1 = pin
-	case PinDIO2:
-		sx.dio2 = pin
-	case PinDIO3:
-		sx.dio3 = pin
-	case PinDIO4:
-		sx.dio4 = pin
-	case PinDIO5:
-		sx.dio5 = pin
+func (sx *SX1276) WithPin(name PinName, pin gpio.PinIO) optionFunc {
+	return func(sx *SX1276) {
+		switch name {
+		case PinReset:
+			sx.reset = pin
+		case PinDIO0:
+			sx.dio0 = pin
+		case PinDIO1:
+			sx.dio1 = pin
+		case PinDIO2:
+			sx.dio2 = pin
+		case PinDIO3:
+			sx.dio3 = pin
+		case PinDIO4:
+			sx.dio4 = pin
+		case PinDIO5:
+			sx.dio5 = pin
+		}
 	}
-	return sx
 }
 
-func NewSX1276() (sx *SX1276, err error) {
+type PortName string
+
+const (
+	SPI0_0 PortName = "SPI0.0"
+	SPI0_1 PortName = "SPI0.1"
+)
+
+func WithSPI(name PortName) optionFunc {
+	return func(sx *SX1276) {
+		sx.portName = name
+	}
+}
+
+func NewSX1276(opts ...optionFunc) (sx *SX1276, err error) {
 	_, err = host.Init()
 	if err != nil {
 		return nil, xerrors.Errorf("host.Init: %w", err)
 	}
 
 	sx = &SX1276{
-		reset: rpi.P1_12,
-		dio0:  rpi.P1_29,
-		dio1:  rpi.P1_31,
-		dio2:  rpi.P1_32,
-		dio3:  rpi.P1_36,
-		dio4:  rpi.P1_33,
-		dio5:  rpi.P1_11,
+		portName: SPI0_0,
+		reset:    rpi.P1_12,
+		dio0:     rpi.P1_29,
+		dio1:     rpi.P1_31,
+		dio2:     rpi.P1_32,
+		dio3:     rpi.P1_36,
+		dio4:     rpi.P1_33,
+		dio5:     rpi.P1_11,
 	}
 
-	sx.port, err = spireg.Open("SPI0.0")
+	for _, opt := range opts {
+		opt(sx)
+	}
+
+	sx.port, err = spireg.Open(string(sx.portName))
 	if err != nil {
 		return nil, xerrors.Errorf(`spireg.Open: %w`, err)
 	}
