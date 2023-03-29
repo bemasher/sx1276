@@ -34,6 +34,38 @@ type SX1276 struct {
 	dio5  gpio.PinIO
 }
 
+type PinName int
+
+const (
+	PinReset PinName = iota
+	PinDIO0
+	PinDIO1
+	PinDIO2
+	PinDIO3
+	PinDIO4
+	PinDIO5
+)
+
+func (sx *SX1276) WithPin(name PinName, pin gpio.PinIO) *SX1276 {
+	switch name {
+	case PinReset:
+		sx.reset = pin
+	case PinDIO0:
+		sx.dio0 = pin
+	case PinDIO1:
+		sx.dio1 = pin
+	case PinDIO2:
+		sx.dio2 = pin
+	case PinDIO3:
+		sx.dio3 = pin
+	case PinDIO4:
+		sx.dio4 = pin
+	case PinDIO5:
+		sx.dio5 = pin
+	}
+	return sx
+}
+
 func NewSX1276() (sx *SX1276, err error) {
 	_, err = host.Init()
 	if err != nil {
