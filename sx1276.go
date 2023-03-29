@@ -49,7 +49,7 @@ const (
 	PinDIO5
 )
 
-func (sx *SX1276) WithPin(name PinName, pin gpio.PinIO) optionFunc {
+func WithPin(name PinName, pin gpio.PinIO) optionFunc {
 	return func(sx *SX1276) {
 		switch name {
 		case PinReset:
