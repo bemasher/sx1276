@@ -7,12 +7,12 @@ import (
 	"time"
 
 	"golang.org/x/xerrors"
-	"periph.io/x/periph/conn/gpio"
-	"periph.io/x/periph/conn/physic"
-	"periph.io/x/periph/conn/spi"
-	"periph.io/x/periph/conn/spi/spireg"
-	"periph.io/x/periph/host"
-	"periph.io/x/periph/host/rpi"
+	"periph.io/x/conn/v3/gpio"
+	"periph.io/x/conn/v3/physic"
+	"periph.io/x/conn/v3/spi"
+	"periph.io/x/conn/v3/spi/spireg"
+	"periph.io/x/host/v3"
+	"periph.io/x/host/v3/rpi"
 )
 
 const (
@@ -45,6 +45,8 @@ const (
 	PinDIO4
 	PinDIO5
 )
+
+//
 
 func (sx *SX1276) WithPin(name PinName, pin gpio.PinIO) *SX1276 {
 	switch name {
